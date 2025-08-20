@@ -8,6 +8,8 @@ import MapPage from '@/pages/MapPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AdminSettingsPage from '@/pages/AdminSettingsPage';
 import EngineersPage from '@/pages/EngineersPage';
+import SupervisorsPage from '@/pages/SupervisorsPage';
+import AllUsersPage from '@/pages/AllUsersPage';
 import ResolvedTicketsPage from '@/pages/ResolvedTicketsPage';
 import NotFound from '@/pages/NotFound';
 import AppLayout from '@/components/AppLayout';
