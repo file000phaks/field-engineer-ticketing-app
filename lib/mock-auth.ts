@@ -143,6 +143,16 @@ export const mockAuth = {
   async signOut() {
     currentSession = null;
     localStorage.removeItem('mock_session');
+
+    // Trigger auth state change listeners
+    authChangeListeners.forEach(callback => {
+      try {
+        callback('SIGNED_OUT', null);
+      } catch (error) {
+        console.error('Error in auth change listener:', error);
+      }
+    });
+
     return { error: null };
   },
 
