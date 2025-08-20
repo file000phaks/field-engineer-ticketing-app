@@ -121,7 +121,16 @@ export const mockAuth = {
     
     currentSession = session;
     localStorage.setItem('mock_session', JSON.stringify(session));
-    
+
+    // Trigger auth state change listeners
+    authChangeListeners.forEach(callback => {
+      try {
+        callback('SIGNED_IN', session);
+      } catch (error) {
+        console.error('Error in auth change listener:', error);
+      }
+    });
+
     return {
       data: {
         user: mockUser.user,
