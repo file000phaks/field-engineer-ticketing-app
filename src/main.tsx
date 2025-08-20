@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AppRouter from '@/components/AppRouter';
 import { AppProvider } from '@/contexts/AppContext';
+import OfflineQueueProvider from '@/components/OfflineQueueProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 
