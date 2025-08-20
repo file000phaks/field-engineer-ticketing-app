@@ -20,7 +20,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <AppProvider>
-        <AppRouter />
+        <OfflineQueueProvider>
+          <AppRouter />
+        </OfflineQueueProvider>
       </AppProvider>
     </QueryClientProvider>
   </React.StrictMode>,
