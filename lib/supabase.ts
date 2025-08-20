@@ -193,15 +193,24 @@ export const subscribeToNotifications = (
   userId: string,
   callback: (payload: any) => void
 ) => {
+  // Return a no-op subscription if Supabase is not available
+  if (!supabase) {
+    console.warn('Supabase not available - notification subscriptions disabled');
+    return {
+      unsubscribe: () => {},
+      channel: null
+    };
+  }
+
   return supabase
     .channel('notifications')
-    .on('postgres_changes', 
-      { 
-        event: 'INSERT', 
-        schema: 'public', 
+    .on('postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
         table: 'notifications',
         filter: `user_id=eq.${userId}`
-      }, 
+      },
       callback
     )
     .subscribe();
