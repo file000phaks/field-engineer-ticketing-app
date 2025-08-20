@@ -179,11 +179,19 @@ export const mockAuth = {
   },
 
   onAuthStateChange(callback: (event: string, session: any) => void) {
-    // Simple implementation - in reality you'd want proper event handling
+    // Add listener to the array
+    authChangeListeners.push(callback);
+
     return {
       data: {
         subscription: {
-          unsubscribe: () => {}
+          unsubscribe: () => {
+            // Remove listener when unsubscribing
+            const index = authChangeListeners.indexOf(callback);
+            if (index > -1) {
+              authChangeListeners.splice(index, 1);
+            }
+          }
         }
       }
     };
