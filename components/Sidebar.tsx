@@ -46,7 +46,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
    */
   const handleSignOut = async () => {
     try {
-      await signOut(() => navigate('/auth'));
+      await signOut();
     } catch (error) {
       console.error('Sign out error:', error);
     }
