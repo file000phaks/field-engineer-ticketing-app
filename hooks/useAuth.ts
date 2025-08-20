@@ -157,7 +157,7 @@ export function useAuth() {
       if (data.user) {
         const profile = await getCurrentUserProfileMock(data.user);
         if (profile && !profile.is_active) {
-          await supabase.auth.signOut();
+          await mockAuth.signOut();
 
           // Temporarily disabled audit logging to debug response body issue
           // await auditService.logEvent(
@@ -171,6 +171,14 @@ export function useAuth() {
 
           throw new Error('Your account has been deactivated. Please contact an administrator.');
         }
+
+        // Update state with user and profile
+        setState({
+          user: data.user,
+          profile,
+          loading: false,
+          initialized: true
+        });
 
         // Start inactivity timer
         securityService.startInactivityTimer(() => {
@@ -191,6 +199,8 @@ export function useAuth() {
         //   profile?.id,
         //   email
         // );
+      } else {
+        setState(prev => ({ ...prev, loading: false }));
       }
 
       toast({

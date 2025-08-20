@@ -67,7 +67,9 @@ export default function EngineersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterWorkload, setFilterWorkload] = useState<string>('all');
+  const [filterDepartment, setFilterDepartment] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('name');
+  const [expandedEngineers, setExpandedEngineers] = useState<Set<string>>(new Set());
 
   const isAdmin = profile?.role === 'admin';
   const isSupervisor = profile?.role === 'supervisor';
@@ -209,12 +211,17 @@ export default function EngineersPage() {
     );
   }
 
+  // Get unique departments
+  const departments = [...new Set(engineers.map(e => e.department).filter(Boolean))].sort();
+
   // Filter and sort engineers
   const filteredEngineers = engineerPerformance.filter(ep => {
     const matchesSearch = ep.engineer.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ep.engineer.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         ep.engineer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ep.engineer.department?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWorkload = filterWorkload === 'all' || ep.workload === filterWorkload;
-    return matchesSearch && matchesWorkload;
+    const matchesDepartment = filterDepartment === 'all' || ep.engineer.department === filterDepartment;
+    return matchesSearch && matchesWorkload && matchesDepartment;
   });
 
   const sortedEngineers = [...filteredEngineers].sort((a, b) => {
@@ -247,6 +254,20 @@ export default function EngineersPage() {
     const mins = minutes % 60;
     return `${hours}h ${mins}m`;
   };
+
+  const toggleExpanded = (engineerId: string) => {
+    setExpandedEngineers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(engineerId)) {
+        newSet.delete(engineerId);
+      } else {
+        newSet.add(engineerId);
+      }
+      return newSet;
+    });
+  };
+
+  const isExpanded = (engineerId: string) => expandedEngineers.has(engineerId);
 
   if (loading) {
     return (
@@ -286,14 +307,27 @@ export default function EngineersPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
-                  placeholder="Search engineers..."
+                  placeholder="Search engineers, emails, departments..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-            
+
+            <Select value={filterDepartment} onValueChange={setFilterDepartment}>
+              <SelectTrigger className="w-full md:w-48">
+                <Filter className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments.map(dept => (
+                  <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={filterWorkload} onValueChange={setFilterWorkload}>
               <SelectTrigger className="w-full md:w-40">
                 <Filter className="w-4 h-4 mr-2" />
@@ -307,7 +341,7 @@ export default function EngineersPage() {
                 <SelectItem value="overloaded">Overloaded</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full md:w-40">
                 <SelectValue />
@@ -364,105 +398,160 @@ export default function EngineersPage() {
         </Card>
       </div>
 
-      {/* Engineers List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {sortedEngineers.map((ep) => (
-          <Card key={ep.engineer.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback>
-                      {ep.engineer.full_name 
-                        ? ep.engineer.full_name.substring(0, 2).toUpperCase() 
-                        : ep.engineer.email.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold">{ep.engineer.full_name || ep.engineer.email}</h3>
-                    <p className="text-sm text-muted-foreground">{ep.engineer.department || 'Field Engineer'}</p>
+      {/* Engineers List - Expandable One-liners */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Users className="w-5 h-5" />
+            Engineers ({filteredEngineers.length})
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Click on any engineer to expand details, or double-click to view profile
+          </p>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-1">
+            {sortedEngineers.map((ep) => (
+              <div key={ep.engineer.id} className="border-b last:border-0">
+                {/* One-liner Summary */}
+                <div
+                  className="flex items-center justify-between p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+                  onClick={() => toggleExpanded(ep.engineer.id)}
+                  onDoubleClick={() => navigate(`/profile/${ep.engineer.id}`)}
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {ep.engineer.full_name
+                          ? ep.engineer.full_name.substring(0, 2).toUpperCase()
+                          : ep.engineer.email.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium truncate">
+                          {ep.engineer.full_name || ep.engineer.email}
+                        </span>
+                        <Badge className={cn("text-xs", getWorkloadColor(ep.workload))}>
+                          {ep.workload}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground truncate">
+                        {ep.engineer.department || 'Field Engineer'} • {ep.activeTickets} active • {ep.completionRate.toFixed(0)}% success
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="text-center hidden sm:block">
+                      <div className="font-semibold text-blue-600">{ep.activeTickets}</div>
+                      <div className="text-xs text-muted-foreground">Active</div>
+                    </div>
+                    <div className="text-center hidden md:block">
+                      <div className="font-semibold text-green-600">{ep.completedTickets}</div>
+                      <div className="text-xs text-muted-foreground">Done</div>
+                    </div>
+                    <div className="text-center hidden lg:block">
+                      <div className="font-semibold text-purple-600">{ep.avgResolutionTime.toFixed(1)}h</div>
+                      <div className="text-xs text-muted-foreground">Avg Time</div>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                    >
+                      {isExpanded(ep.engineer.id) ? '▼' : '▶'}
+                    </Button>
                   </div>
                 </div>
-                <Badge className={cn("text-xs", getWorkloadColor(ep.workload))}>
-                  {ep.workload}
-                </Badge>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              {/* Key Metrics */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center">
-                  <div className="text-xl font-bold text-blue-600">{ep.activeTickets}</div>
-                  <div className="text-xs text-muted-foreground">Active Tickets</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-green-600">{ep.completedTickets}</div>
-                  <div className="text-xs text-muted-foreground">Completed</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-purple-600">{ep.completionRate.toFixed(0)}%</div>
-                  <div className="text-xs text-muted-foreground">Success Rate</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xl font-bold text-orange-600">{ep.avgResolutionTime.toFixed(1)}h</div>
-                  <div className="text-xs text-muted-foreground">Avg Resolution</div>
-                </div>
-              </div>
 
-              {/* Time Tracking */}
-              <div className="p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium flex items-center gap-1">
-                    <Timer className="w-4 h-4" />
-                    Time Spent
-                  </span>
-                  <span className="text-sm font-bold">{formatTime(ep.totalTimeSpent)}</span>
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Avg: {ep.completedTickets > 0 ? formatTime(Math.round(ep.totalTimeSpent / ep.completedTickets)) : '0m'} per ticket
-                </div>
-              </div>
+                {/* Expanded Details */}
+                {isExpanded(ep.engineer.id) && (
+                  <div className="p-4 bg-muted/30 border-t">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {/* Key Metrics */}
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm">Performance Metrics</h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="text-center p-2 bg-background rounded">
+                            <div className="text-lg font-bold text-blue-600">{ep.activeTickets}</div>
+                            <div className="text-xs text-muted-foreground">Active Tickets</div>
+                          </div>
+                          <div className="text-center p-2 bg-background rounded">
+                            <div className="text-lg font-bold text-green-600">{ep.completedTickets}</div>
+                            <div className="text-xs text-muted-foreground">Completed</div>
+                          </div>
+                          <div className="text-center p-2 bg-background rounded">
+                            <div className="text-lg font-bold text-purple-600">{ep.completionRate.toFixed(0)}%</div>
+                            <div className="text-xs text-muted-foreground">Success Rate</div>
+                          </div>
+                          <div className="text-center p-2 bg-background rounded">
+                            <div className="text-lg font-bold text-orange-600">{ep.avgResolutionTime.toFixed(1)}h</div>
+                            <div className="text-xs text-muted-foreground">Avg Resolution</div>
+                          </div>
+                        </div>
+                      </div>
 
-              {/* Weekly Performance */}
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Weekly Performance</h4>
-                <div className="grid grid-cols-4 gap-2">
-                  {ep.weeklyPerformance.map((week, index) => (
-                    <div key={index} className="text-center p-2 bg-muted/30 rounded">
-                      <div className="text-xs text-muted-foreground">{week.week}</div>
-                      <div className="text-sm font-semibold">{week.completed}</div>
-                      <div className="text-xs text-muted-foreground">{formatTime(week.timeSpent)}</div>
+                      {/* Time Tracking */}
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm">Time Management</h4>
+                        <div className="p-3 bg-background rounded">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium flex items-center gap-1">
+                              <Timer className="w-4 h-4" />
+                              Total Time
+                            </span>
+                            <span className="text-sm font-bold">{formatTime(ep.totalTimeSpent)}</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Average per ticket: {ep.completedTickets > 0 ? formatTime(Math.round(ep.totalTimeSpent / ep.completedTickets)) : '0m'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Weekly Performance */}
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm">Weekly Trend</h4>
+                        <div className="grid grid-cols-4 gap-1">
+                          {ep.weeklyPerformance.map((week, index) => (
+                            <div key={index} className="text-center p-2 bg-background rounded">
+                              <div className="text-xs text-muted-foreground">{week.week}</div>
+                              <div className="text-sm font-semibold">{week.completed}</div>
+                              <div className="text-xs text-muted-foreground">{formatTime(week.timeSpent)}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/tickets?assigned_to=${ep.engineer.id}`)}
-                  className="flex-1"
-                >
-                  <Target className="w-4 h-4 mr-1" />
-                  View Tickets
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/profile/${ep.engineer.id}`)}
-                  className="flex-1"
-                >
-                  <UserCheck className="w-4 h-4 mr-1" />
-                  Profile
-                </Button>
+                    {/* Actions */}
+                    <div className="flex gap-2 mt-4 pt-4 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/tickets?assigned_to=${ep.engineer.id}`)}
+                      >
+                        <Target className="w-4 h-4 mr-2" />
+                        View Tickets
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/profile/${ep.engineer.id}`)}
+                      >
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        View Profile
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {filteredEngineers.length === 0 && (
         <div className="text-center py-12">

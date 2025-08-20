@@ -73,6 +73,9 @@ const mockUsers = new Map<string, { user: MockUser; profile: MockProfile; passwo
 // Mock session storage
 let currentSession: { user: MockUser; access_token: string } | null = null;
 
+// Store auth change listeners
+let authChangeListeners: ((event: string, session: any) => void)[] = [];
+
 export const mockAuth = {
   async signInWithPassword(credentials: { email: string; password: string }) {
     // Simulate network delay
@@ -118,7 +121,16 @@ export const mockAuth = {
     
     currentSession = session;
     localStorage.setItem('mock_session', JSON.stringify(session));
-    
+
+    // Trigger auth state change listeners
+    authChangeListeners.forEach(callback => {
+      try {
+        callback('SIGNED_IN', session);
+      } catch (error) {
+        console.error('Error in auth change listener:', error);
+      }
+    });
+
     return {
       data: {
         user: mockUser.user,
@@ -131,6 +143,16 @@ export const mockAuth = {
   async signOut() {
     currentSession = null;
     localStorage.removeItem('mock_session');
+
+    // Trigger auth state change listeners
+    authChangeListeners.forEach(callback => {
+      try {
+        callback('SIGNED_OUT', null);
+      } catch (error) {
+        console.error('Error in auth change listener:', error);
+      }
+    });
+
     return { error: null };
   },
 
@@ -157,11 +179,19 @@ export const mockAuth = {
   },
 
   onAuthStateChange(callback: (event: string, session: any) => void) {
-    // Simple implementation - in reality you'd want proper event handling
+    // Add listener to the array
+    authChangeListeners.push(callback);
+
     return {
       data: {
         subscription: {
-          unsubscribe: () => {}
+          unsubscribe: () => {
+            // Remove listener when unsubscribing
+            const index = authChangeListeners.indexOf(callback);
+            if (index > -1) {
+              authChangeListeners.splice(index, 1);
+            }
+          }
         }
       }
     };

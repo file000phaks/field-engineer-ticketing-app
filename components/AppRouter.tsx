@@ -8,6 +8,8 @@ import MapPage from '@/pages/MapPage';
 import ProfilePage from '@/pages/ProfilePage';
 import AdminSettingsPage from '@/pages/AdminSettingsPage';
 import EngineersPage from '@/pages/EngineersPage';
+import SupervisorsPage from '@/pages/SupervisorsPage';
+import AllUsersPage from '@/pages/AllUsersPage';
 import ResolvedTicketsPage from '@/pages/ResolvedTicketsPage';
 import NotFound from '@/pages/NotFound';
 import AppLayout from '@/components/AppLayout';
@@ -15,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import AuthForm from '@/components/AuthForm';
 import { ThemeProvider } from '@/components/theme-provider';
 import ThemeToggle from '@/components/ThemeToggle';
+import { Toaster } from '@/components/ui/sonner';
 import { Loader2 } from 'lucide-react';
 
 export default function AppRouter() {
@@ -37,6 +40,7 @@ export default function AppRouter() {
           </div>
           <AuthForm onAuthSuccess={() => {}} />
         </div>
+        <Toaster />
       </ThemeProvider>
     );
   }
@@ -55,12 +59,15 @@ export default function AppRouter() {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="profile/:userId" element={<ProfilePage />} />
             <Route path="engineers" element={<EngineersPage />} />
+            <Route path="admin/supervisors" element={<SupervisorsPage />} />
+            <Route path="admin/users" element={<AllUsersPage />} />
             <Route path="admin/resolved-tickets" element={<ResolvedTicketsPage />} />
             <Route path="admin/settings" element={<AdminSettingsPage />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </Router>
+      <Toaster />
     </ThemeProvider>
   );
 }

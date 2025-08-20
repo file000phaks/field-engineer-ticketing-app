@@ -154,7 +154,7 @@ export default function AuthForm({ onAuthSuccess }: AuthFormProps) {
     try {
       if (activeTab === 'signin') {
         await signIn(formData.email, formData.password);
-        setSuccess('Signed in successfully!');
+        // Don't show success message for sign-in as the app will redirect automatically
         onAuthSuccess?.();
       } else {
         await signUp(formData.email, formData.password, formData.fullName);
