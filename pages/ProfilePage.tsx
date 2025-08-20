@@ -211,7 +211,7 @@ export default function ProfilePage() {
 
   const handleSignOut = async () => {
     try {
-      await signOut(() => navigate('/auth'));
+      await signOut();
     } catch (error) {
       toast({
         title: 'Error',
