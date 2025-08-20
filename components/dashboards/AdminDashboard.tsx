@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { 
-  Users, 
-  Settings, 
-  BarChart3, 
+import {
+  Users,
+  Settings,
+  BarChart3,
   AlertTriangle,
   TrendingUp,
   Shield,
@@ -19,7 +19,8 @@ import {
   Activity,
   Calendar,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Archive
 } from 'lucide-react';
 import { dbHelpers, supabase } from '@/lib/supabase';
 import { mockDbHelpers, mockUsers } from '@/lib/mock-data';
