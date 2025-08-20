@@ -73,6 +73,9 @@ const mockUsers = new Map<string, { user: MockUser; profile: MockProfile; passwo
 // Mock session storage
 let currentSession: { user: MockUser; access_token: string } | null = null;
 
+// Store auth change listeners
+let authChangeListeners: ((event: string, session: any) => void)[] = [];
+
 export const mockAuth = {
   async signInWithPassword(credentials: { email: string; password: string }) {
     // Simulate network delay
