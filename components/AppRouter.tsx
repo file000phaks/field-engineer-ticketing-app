@@ -59,6 +59,8 @@ export default function AppRouter() {
             <Route path="profile" element={<ProfilePage />} />
             <Route path="profile/:userId" element={<ProfilePage />} />
             <Route path="engineers" element={<EngineersPage />} />
+            <Route path="admin/supervisors" element={<SupervisorsPage />} />
+            <Route path="admin/users" element={<AllUsersPage />} />
             <Route path="admin/resolved-tickets" element={<ResolvedTicketsPage />} />
             <Route path="admin/settings" element={<AdminSettingsPage />} />
             <Route path="*" element={<NotFound />} />
