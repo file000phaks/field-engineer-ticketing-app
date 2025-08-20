@@ -211,12 +211,17 @@ export default function EngineersPage() {
     );
   }
 
+  // Get unique departments
+  const departments = [...new Set(engineers.map(e => e.department).filter(Boolean))].sort();
+
   // Filter and sort engineers
   const filteredEngineers = engineerPerformance.filter(ep => {
     const matchesSearch = ep.engineer.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ep.engineer.email.toLowerCase().includes(searchTerm.toLowerCase());
+                         ep.engineer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ep.engineer.department?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesWorkload = filterWorkload === 'all' || ep.workload === filterWorkload;
-    return matchesSearch && matchesWorkload;
+    const matchesDepartment = filterDepartment === 'all' || ep.engineer.department === filterDepartment;
+    return matchesSearch && matchesWorkload && matchesDepartment;
   });
 
   const sortedEngineers = [...filteredEngineers].sort((a, b) => {
