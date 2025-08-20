@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import AuthForm from '@/components/AuthForm';
 import { ThemeProvider } from '@/components/theme-provider';
 import ThemeToggle from '@/components/ThemeToggle';
+import { Toaster } from '@/components/ui/sonner';
 import { Loader2 } from 'lucide-react';
 
 export default function AppRouter() {
