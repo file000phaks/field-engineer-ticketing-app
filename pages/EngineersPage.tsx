@@ -67,7 +67,9 @@ export default function EngineersPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterWorkload, setFilterWorkload] = useState<string>('all');
+  const [filterDepartment, setFilterDepartment] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('name');
+  const [expandedEngineers, setExpandedEngineers] = useState<Set<string>>(new Set());
 
   const isAdmin = profile?.role === 'admin';
   const isSupervisor = profile?.role === 'supervisor';
