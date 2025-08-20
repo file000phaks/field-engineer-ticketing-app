@@ -255,6 +255,20 @@ export default function EngineersPage() {
     return `${hours}h ${mins}m`;
   };
 
+  const toggleExpanded = (engineerId: string) => {
+    setExpandedEngineers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(engineerId)) {
+        newSet.delete(engineerId);
+      } else {
+        newSet.add(engineerId);
+      }
+      return newSet;
+    });
+  };
+
+  const isExpanded = (engineerId: string) => expandedEngineers.has(engineerId);
+
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto p-4 md:p-6">
