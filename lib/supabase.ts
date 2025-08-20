@@ -165,14 +165,23 @@ export const subscribeToTickets = (
   callback: (payload: any) => void,
   userId?: string
 ) => {
+  // Return a no-op subscription if Supabase is not available
+  if (!supabase) {
+    console.warn('Supabase not available - real-time subscriptions disabled');
+    return {
+      unsubscribe: () => {},
+      channel: null
+    };
+  }
+
   let query = supabase
     .channel('tickets')
-    .on('postgres_changes', 
-      { 
-        event: '*', 
-        schema: 'public', 
-        table: 'tickets' 
-      }, 
+    .on('postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'tickets'
+      },
       callback
     );
 
