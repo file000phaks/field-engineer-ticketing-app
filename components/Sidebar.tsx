@@ -105,10 +105,31 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       adminOnly: true
     },
     {
+      path: '/admin/supervisors',
+      icon: Shield,
+      label: 'Supervisors',
+      description: 'Supervisor management',
+      adminOnly: true
+    },
+    {
+      path: '/admin/users',
+      icon: Activity,
+      label: 'All Users',
+      description: 'Complete user management',
+      adminOnly: true
+    },
+    {
       path: '/admin/resolved-tickets',
       icon: Archive,
       label: 'Resolved Tickets',
       description: 'Ticket history & analytics',
+      adminOnly: true
+    },
+    {
+      path: '/admin/system',
+      icon: Wrench,
+      label: 'System Tools',
+      description: 'System maintenance & tools',
       adminOnly: true
     },
     {
