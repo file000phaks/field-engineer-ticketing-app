@@ -390,43 +390,123 @@ export default function AdminDashboard() {
         </Card>
       )}
 
-      {/* Quick Actions */}
+      {/* Quick System Management */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* User Management */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              User Management
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              onClick={() => navigate('/engineers')}
+              variant="outline"
+              className="w-full justify-start h-10"
+            >
+              <Users className="w-4 h-4 mr-3" />
+              Field Engineers ({usersByRole.field_engineer})
+            </Button>
+            <Button
+              onClick={() => navigate('/admin/supervisors')}
+              variant="outline"
+              className="w-full justify-start h-10"
+            >
+              <Shield className="w-4 h-4 mr-3" />
+              Supervisors ({usersByRole.supervisor})
+            </Button>
+            <Button
+              onClick={() => navigate('/admin/users')}
+              className="w-full justify-start h-10"
+            >
+              <UserCog className="w-4 h-4 mr-3" />
+              All Users & Roles
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* System Operations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              System Operations
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/tickets')}
+              className="w-full justify-start h-10"
+            >
+              <Database className="w-4 h-4 mr-3" />
+              All Tickets ({systemStats?.total_tickets || 0})
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/admin/system')}
+              className="w-full justify-start h-10"
+            >
+              <Activity className="w-4 h-4 mr-3" />
+              System Tools
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/admin/settings')}
+              className="w-full justify-start h-10"
+            >
+              <Settings className="w-4 h-4 mr-3" />
+              System Settings
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analytics & Reports */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">System Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <Button 
-            onClick={() => navigate('/admin/users')} 
-            className="w-full justify-start h-12"
-          >
-            <Users className="w-4 h-4 mr-3" />
-            Manage Users & Roles
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/tickets')} 
-            className="w-full justify-start h-12"
-          >
-            <Database className="w-4 h-4 mr-3" />
-            System-wide Ticket View
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/admin/settings')} 
-            className="w-full justify-start h-12"
-          >
-            <Settings className="w-4 h-4 mr-3" />
-            System Settings
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/admin/analytics')} 
-            className="w-full justify-start h-12"
-          >
-            <BarChart3 className="w-4 h-4 mr-3" />
+          <CardTitle className="text-lg flex items-center gap-2">
+            <BarChart3 className="w-5 h-5" />
             Analytics & Reports
-          </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/admin/resolved-tickets')}
+              className="h-20 flex-col gap-2"
+            >
+              <Archive className="w-6 h-6" />
+              <span className="text-sm">Resolved Tickets</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/?view=analytics')}
+              className="h-20 flex-col gap-2"
+            >
+              <TrendingUp className="w-6 h-6" />
+              <span className="text-sm">Performance</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/tickets?priority=critical')}
+              className="h-20 flex-col gap-2"
+            >
+              <AlertTriangle className="w-6 h-6" />
+              <span className="text-sm">Critical Issues</span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/map')}
+              className="h-20 flex-col gap-2"
+            >
+              <Activity className="w-6 h-6" />
+              <span className="text-sm">Field Activity</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
