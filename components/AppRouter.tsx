@@ -38,6 +38,7 @@ export default function AppRouter() {
           </div>
           <AuthForm onAuthSuccess={() => {}} />
         </div>
+        <Toaster />
       </ThemeProvider>
     );
   }
